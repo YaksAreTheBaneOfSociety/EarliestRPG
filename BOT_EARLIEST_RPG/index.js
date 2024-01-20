@@ -13,8 +13,6 @@ const client = new Client({
 const fs = require("fs")
 const path = require("path")
 
-let stringtableData = fs.readFileSync("stringtable.json") // reads the json file
-let stringtable = JSON.parse(stringtableData) // turns json into js
 let invData = fs.readFileSync("inventory.json") // reads the json file
 let inventory = JSON.parse(invData) // turns json into js
 let skillsData = fs.readFileSync("skills.json") // reads the json file
