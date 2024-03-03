@@ -8,4 +8,4 @@ BOT_GENERAL_MINE/config.json
 BOT_GENERAL_MINE/node_modules/
 BOT_XP_BOSS/node_modules/
 BOT_XP_BOSS/config.json
-BOT_XP_BOSS/xp.json
+BOT_XP_BOSS/deploy-commands.js
