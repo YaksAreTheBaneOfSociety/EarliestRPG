@@ -90,8 +90,12 @@ client.on("messageCreate", (m) => {
 		xpObject.push(userxp)
 		xpIndex = xpObject.findIndex(element => element.id === m.author.id)
 	}
-	if(xpObject[xpIndex].username != m.member.displayName){
-		xpObject[xpIndex].username = m.member.displayName
+	try{
+		if(xpObject[xpIndex].username != m.member.displayName){
+			xpObject[xpIndex].username = m.member.displayName
+		}
+	}catch{
+		xpObject[xpIndex].username = m.author.username
 	}
 	if(xpObject[xpIndex].timeout == false){
 		let xpToAdd = Math.floor(Math.random()*(xpMax-xpMin+1))+xpMin
