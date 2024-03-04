@@ -10,4 +10,7 @@ BOT_XP_BOSS/node_modules/
 BOT_XP_BOSS/config.json
 BOT_XP_BOSS/deploy-commands.js
 BOT_XP_BOSS/data_miner.py
-BOT_XP_BOSS/corpus.txt
+BOT_XP_BOSS/wordsList.json
+BOT_XP_BOSS/wordOfTheDay.json
+BOT_XP_BOSS/package.json
+BOT_XP_BOSS/package-lock.json
