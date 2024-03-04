@@ -103,7 +103,7 @@ function selectwordoftheday(){
 client.once(Events.ClientReady, readyClient => {
 	console.log(`Ready! Logged in as ${readyClient.user.tag}`);
 	
-	cron.schedule('3 15 * * *', () => {
+	cron.schedule('0 8 * * *', () => {
 		selectwordoftheday()
 	},{
 		scheduled: true,
@@ -134,12 +134,14 @@ client.on("messageCreate", (m) => {
 	}catch{
 		xpObject[xpIndex].username = m.author.username
 	}
-	if(m.toString().includes(newRandomWord.word) && newRandomWord.found == false){
-		newRandomWord.found = true
+	if(m.toString().toLowerCase().includes(randomWord[0].word.toLowerCase()) && randomWord[0].found == false){
+		randomWord[0].found = true
 		let xpToAdd = 25*Math.floor(Math.random()*(xpMax-xpMin+1))+xpMin
-		client.channels.cache.get('1182165246870310984').send(`${m.author} found the secret word: **${newRandomWord.word}** and was awarded ${xpToAdd} xp`)
+		client.channels.cache.get('1182165246870310984').send(`${m.author} found the secret word: **${randomWord[0].word}** and was awarded ${xpToAdd} xp`)
 		xpObject[xpIndex].xp += xpToAdd
 		levelUpCheck(xpObject,xpIndex,m)
+		let jsonRandomWord = JSON.stringify(randomWord)
+		fs.writeFileSync("wordOfTheDay.json", jsonRandomWord)
 	}
 	if(xpObject[xpIndex].timeout == false){
 		let xpToAdd = Math.floor(Math.random()*(xpMax-xpMin+1))+xpMin
