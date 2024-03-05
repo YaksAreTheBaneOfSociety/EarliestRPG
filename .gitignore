@@ -1,4 +1,3 @@
-
 BOT_EARLIEST_RPG/EARLIEST RPG.lnk
 BOT_EARLIEST_RPG/start.bat
 BOT_EARLIEST_RPG/config.json
@@ -6,11 +5,3 @@ BOT_EARLIEST_RPG/New Text Document.txt
 BOT_EARLIEST_RPG/node_modules/
 BOT_GENERAL_MINE/config.json
 BOT_GENERAL_MINE/node_modules/
-BOT_XP_BOSS/node_modules/
-BOT_XP_BOSS/config.json
-BOT_XP_BOSS/deploy-commands.js
-BOT_XP_BOSS/data_miner.py
-BOT_XP_BOSS/wordsList.json
-BOT_XP_BOSS/wordOfTheDay.json
-BOT_XP_BOSS/package.json
-BOT_XP_BOSS/package-lock.json
