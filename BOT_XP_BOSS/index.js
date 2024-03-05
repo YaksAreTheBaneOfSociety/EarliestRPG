@@ -34,6 +34,103 @@ for (const folder of commandFolders) {
 		}
 	}
 }
+
+
+let xpData = fs.readFileSync("xp.json") // reads the json file
+let xpObject = JSON.parse(xpData) // turns json into js
+let randomWordsListData = fs.readFileSync("wordsList.json") // reads the json file
+let randomWordsList = JSON.parse(randomWordsListData) // turns json into js
+let randomWordData = fs.readFileSync("wordOfTheDay.json") // reads the json file
+let randomWord = JSON.parse(randomWordData) // turns json into js
+
+const xpMin = 15
+const xpMax = 40
+const xpMultiplierForNotRobot = 2
+let newRandomWord = {}
+let oldRandomWord = {}
+let rolesLevels = [
+	{
+		'role': '1182169777825927178',
+		'level': 1
+	},
+	{
+		'role': '1182169821429907456',
+		'level': 5
+	},
+	{
+		'role': '1182169863821725727',
+		'level': 10
+	},
+	{
+		'role': '1182169907425718303',
+		'level': 25
+	},
+	{
+		'role': '1182169962899587153',
+		'level': 50
+	},
+	{
+		'role': '1182170032864755722',
+		'level': 69
+	},
+	{
+		'role': '1182170091450798151',
+		'level': 75
+	},
+	{
+		'role': '1182166525386432642',
+		'level': 100
+	},
+	{
+		'role': '1182169175779709008',
+		'level': 600
+	},
+]
+
+
+var getRandomWord = function(wordList){
+    const randomIndex = Math.floor(Math.random() * wordList.length);
+    return wordList[randomIndex];
+}
+function levelUpCheck(xpObject,xpIndex,m){
+	let xpNeeded = 75
+	let i = 0
+	while(xpObject[xpIndex].xp > xpNeeded) {
+		i++
+		xpNeeded+=75+100*i
+	}
+	if(i == xpObject[xpIndex].level){
+		return
+	}
+	xpObject[xpIndex].level=i
+	let roleIndex = rolesLevels.findIndex(element => element.level === xpObject[xpIndex].level)
+	let addedRolesString = ``
+	for (let i = 0; i < rolesLevels.length; i++) {
+		if (xpObject[xpIndex].level >= rolesLevels[i].level && !m.member.roles.cache.has(rolesLevels[i].role)){
+			m.member.roles.add(rolesLevels[i].role)
+			addedRolesString=addedRolesString.concat(` and earned the <@&${rolesLevels[i].role}> role`)
+		}
+	}
+	client.channels.cache.get('1182165246870310984').send(`${m.author} has reached level **${xpObject[xpIndex].level}**${addedRolesString}`)
+
+}
+function selectwordoftheday(){
+	newRandomWord = getRandomWord(randomWordsList)
+	newRandomWord.found = false
+	if(randomWord[0] != null){
+		oldRandomWord = randomWord[0]
+		randomWord[1] = oldRandomWord
+	}
+	randomWord[0] = newRandomWord
+	let jsonRandomWord = JSON.stringify(randomWord)
+	fs.writeFileSync("wordOfTheDay.json", jsonRandomWord)
+	if(randomWord[1] != null){
+		client.channels.cache.get('1182165246870310984').send(`Yesterday's random word was **${randomWord[1].word}**`)
+	}
+	client.channels.cache.get('1182165246870310984').send(`Today's random word has been selected! it has been used **${newRandomWord.count}** times (before March 4, 2024)`)
+
+}
+
 client.on(Events.InteractionCreate, async interaction => {
 	if (!interaction.isChatInputCommand()) return;
 
@@ -55,54 +152,16 @@ client.on(Events.InteractionCreate, async interaction => {
 		}
 	}
 });
-
-let xpData = fs.readFileSync("xp.json") // reads the json file
-let xpObject = JSON.parse(xpData) // turns json into js
-let randomWordsListData = fs.readFileSync("wordsList.json") // reads the json file
-let randomWordsList = JSON.parse(randomWordsListData) // turns json into js
-let randomWordData = fs.readFileSync("wordOfTheDay.json") // reads the json file
-let randomWord = JSON.parse(randomWordData) // turns json into js
-
-const xpMin = 15
-const xpMax = 40
-const xpMultiplierForNotRobot = 2
-let newRandomWord = {}
-let oldRandomWord = {}
-
-var getRandomWord = function(wordList){
-    const randomIndex = Math.floor(Math.random() * wordList.length);
-    return wordList[randomIndex];
-}
-function levelUpCheck(xpObject,xpIndex,m){
-	xpNeeded=75+100*xpObject[xpIndex].level
-	if(xpObject[xpIndex].xp>=xpNeeded){
-		xpObject[xpIndex].xp=0
-		xpObject[xpIndex].level++
-		client.channels.cache.get('1182165246870310984').send(`${m.author} has reached level **${xpObject[xpIndex].level}**`)
-	}
-}
-function selectwordoftheday(){
-	newRandomWord = getRandomWord(randomWordsList)
-	newRandomWord.found = false
-	if(randomWord[0] != null){
-		oldRandomWord = randomWord[0]
-		randomWord[1] = oldRandomWord
-	}
-	randomWord[0] = newRandomWord
-	let jsonRandomWord = JSON.stringify(randomWord)
-	fs.writeFileSync("wordOfTheDay.json", jsonRandomWord)
-	if(randomWord[1] != null){
-		client.channels.cache.get('1182165246870310984').send(`Yesterday's random word was **${randomWord[1].word}**`)
-	}
-	client.channels.cache.get('1182165246870310984').send(`Today's random word has been selected! it has been used **${newRandomWord.count}** times (before March 4, 2024)`)
-
-}
 // When the client is ready, run this code (only once).
 // The distinction between `client: Client<boolean>` and `readyClient: Client<true>` is important for TypeScript developers.
 // It makes some properties non-nullable.
 client.once(Events.ClientReady, readyClient => {
 	console.log(`Ready! Logged in as ${readyClient.user.tag}`);
-	
+	for (let i = 0; i < xpObject.length; i++) {
+		xpObject[i].timeout = false;
+	}
+	let jsonXP = JSON.stringify(xpObject) // turns js back into json
+	fs.writeFileSync("xp.json", jsonXP) // the json file is now the xp variable
 	cron.schedule('0 8 * * *', () => {
 		selectwordoftheday()
 	},{
@@ -136,6 +195,7 @@ client.on("messageCreate", (m) => {
 	}
 	if(m.toString().toLowerCase().includes(randomWord[0].word.toLowerCase()) && randomWord[0].found == false){
 		randomWord[0].found = true
+		randomWord[0].foundBy = m.author.username
 		let xpToAdd = 25*Math.floor(Math.random()*(xpMax-xpMin+1))+xpMin
 		client.channels.cache.get('1182165246870310984').send(`${m.author} found the secret word: **${randomWord[0].word}** and was awarded ${xpToAdd} xp`)
 		xpObject[xpIndex].xp += xpToAdd
@@ -146,7 +206,6 @@ client.on("messageCreate", (m) => {
 	if(xpObject[xpIndex].timeout == false){
 		let xpToAdd = Math.floor(Math.random()*(xpMax-xpMin+1))+xpMin
 		xpObject[xpIndex].xp += xpToAdd
-		levelUpCheck(xpObject,xpIndex,m)
 		xpObject[xpIndex].timeout=true
 		setTimeout(() => {
 			xpObject[xpIndex].timeout=false
@@ -154,6 +213,7 @@ client.on("messageCreate", (m) => {
 		let jsonXP = JSON.stringify(xpObject) // turns js back into json
 		fs.writeFileSync("xp.json", jsonXP) // the json file is now the xp variable
 	}	
+	levelUpCheck(xpObject,xpIndex,m)
 })
 // Log in to Discord with your client's token
 client.login(token);

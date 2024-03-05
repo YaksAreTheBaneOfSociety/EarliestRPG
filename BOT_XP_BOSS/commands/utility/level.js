@@ -25,8 +25,12 @@ module.exports = {
 		}
 		let jsonXP = JSON.stringify(xpObject) // turns js back into json
 		fs.writeFileSync("xp.json", jsonXP) // the json file is now the xp variable
-		let xpPercentage = (xpObject[xpIndex].xp/(75+100*xpObject[xpIndex].level))
+		let xpOld = 0
+		for (let i = 0; i < xpObject[xpIndex].level; i++) {
+			xpOld+=75+100*i
+		}
+		let xpPercentage = ((xpObject[xpIndex].xp-xpOld)/(75+100*xpObject[xpIndex].level))
 		const progressBar = ("■".repeat(Math.round(25*xpPercentage)) + "□".repeat(25-(Math.round(25*xpPercentage))) + " - " + Math.round(100*xpPercentage) + "%")
-		await interaction.reply("**"+targetuser.username+"**\n----------------------------------------------\nLevel: " + xpObject[xpIndex].level + "\nXP: " + xpObject[xpIndex].xp + "/" + (75+100*xpObject[xpIndex].level) + "\n" + progressBar)
+		await interaction.reply("**"+targetuser.username+"**\n----------------------------------------------\nLevel: " + xpObject[xpIndex].level +"\nTotal XP: " + xpObject[xpIndex].xp + "\nXP: " + (xpObject[xpIndex].xp-xpOld) + "/" + (75+100*xpObject[xpIndex].level) + "\n" + progressBar)
 	},
 };
