@@ -181,7 +181,7 @@ module.exports = {
 					xpEarned=10
 				}
 				if(baitType == "superbait"){
-					let multipliers = {'catch': 2.5,'rare':4,'legendary':10}
+					let multipliers = {'':4,'catch': 2.5,'rare':4,'legendary':10}
 					xpEarned*=multipliers[catchType]
 				}
 				totalXP+=xpEarned

@@ -125,30 +125,21 @@ module.exports = {
 			}
 		}
 		if(buyItem != false && purchaseableItems[category] != null){
-			if(buyItem != false){
-				let buyIndex = purchaseableItems[category].findIndex(element => element.item === buyItem)
-				if(buyIndex == -1){
-					interaction.reply(`${buyItem} is not a valid item`)
-					return
-				}else if(inventory[invIndex].coins.coins < purchaseableItems[category][buyIndex].cost*quantity){
-					interaction.reply(`${quantity} ${buyItem} costs ${purchaseableItems[category][buyIndex].cost*quantity} EarliestCoins. You only have ${inventory[invIndex].coins.coins}.`)
-					return
-				}else{
-					inventory[invIndex].coins.coins-=purchaseableItems[category][buyIndex].cost*quantity
-					if(inventory[invIndex][category][buyItem]==null){
-						inventory[invIndex][category][buyItem]=purchaseableItems[category][buyIndex].uses*quantity
-					}else{
-						inventory[invIndex][category][buyItem]+=purchaseableItems[category][buyIndex].uses*quantity
-					}
-					interaction.reply(`Purchased ${quantity} ${buyItem} for ${purchaseableItems[category][buyIndex].cost*quantity} EarliestCoins. You now have ${inventory[invIndex].coins.coins} EarliestCoins.`)
-				}
+			let buyIndex = purchaseableItems[category].findIndex(element => element.item === buyItem)
+			if(buyIndex == -1){
+				interaction.reply(`${buyItem} is not a valid item`)
+				return
+			}else if(inventory[invIndex].coins.coins < purchaseableItems[category][buyIndex].cost*quantity){
+				interaction.reply(`${quantity} ${buyItem} costs ${purchaseableItems[category][buyIndex].cost*quantity} EarliestCoins. You only have ${inventory[invIndex].coins.coins}.`)
+				return
 			}else{
-				interactionReply = `**${category} items for sale**`
-				for (const [key, value] of Object.entries(purchaseableItems[category])) {
-					interactionReply+=`\n*${value.item}* - ${value.name} can be purchased for ${value.cost} EarliestCoins`
+				inventory[invIndex].coins.coins-=purchaseableItems[category][buyIndex].cost*quantity
+				if(inventory[invIndex][category][buyItem]==null){
+					inventory[invIndex][category][buyItem]=purchaseableItems[category][buyIndex].uses*quantity
+				}else{
+					inventory[invIndex][category][buyItem]+=purchaseableItems[category][buyIndex].uses*quantity
 				}
-				interactionReply+=`\nYou have **${inventory[invIndex].coins.coins}** EarliestCoins`
-				interaction.reply(interactionReply)
+				interaction.reply(`Purchased ${quantity} ${buyItem} for ${purchaseableItems[category][buyIndex].cost*quantity} EarliestCoins. You now have ${inventory[invIndex].coins.coins} EarliestCoins.`)
 			}
 		}else if(sellItem != false && sellableItems[category] != null){
 			if(sellItem != false){
@@ -165,7 +156,16 @@ module.exports = {
 				}
 			}
 		}else{
-			interaction.reply(`There are currently no ${category} items for sale.`)
+			if(purchaseableItems[category] == null){
+				interaction.reply(`There are currently no ${category} items for sale.`)
+			}else{
+				interactionReply = `**${category} items for sale**`
+				for (const [key, value] of Object.entries(purchaseableItems[category])) {
+					interactionReply+=`\n*${value.item}* - ${value.name} can be purchased for ${value.cost} EarliestCoins`
+				}
+				interactionReply+=`\nYou have **${inventory[invIndex].coins.coins}** EarliestCoins`
+				interaction.reply(interactionReply)
+			}
 		}
 
 		save(interaction)
