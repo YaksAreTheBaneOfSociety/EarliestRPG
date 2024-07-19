@@ -12,10 +12,12 @@ module.exports = {
 				.addChoices(
 					{ name: 'bait', value: 'bait' },
 					{ name: 'coins', value: 'coins' },
-					{ name: 'fish', value: 'fish' }
+					{ name: 'fish', value: 'fish' },
+					{ name: 'ore', value: 'ore' }
 				)
 				),
 	async execute(interaction, client) {
+		const ignoredItems = ["ore pouch"]
 		const invType = interaction.options.getString('category')
 		let targetUser = interaction.user
 		let playerSave = {}
@@ -58,7 +60,7 @@ module.exports = {
 		}
 		let isEmpty=false
 		for (const [key, value] of Object.entries(playerSave.inventory[invType])) {
-			if(value != 0){
+			if(!(ignoredItems.includes(key))){
 				interactionReply+=`\n${interactionUser} has ${value} ${key}`
 				isEmpty=true
 			}

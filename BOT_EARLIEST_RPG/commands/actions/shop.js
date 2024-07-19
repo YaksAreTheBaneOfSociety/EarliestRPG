@@ -81,6 +81,9 @@ module.exports = {
 		if(playerSave.inventory.coins == null){
 			playerSave.inventory.coins = {coins:0}
 		}
+		if(playerSave.inventory.coins.coins == null){
+			playerSave.inventory.coins = {coins:0}
+		}
 		let purchaseableItems = {
 			bait:[{	name: 'Loaf of Bread (20 uses)',
 					cost: 20,//based off of level 10: 10% to catch common fish, 20 uses average 2 fish, 10 coins per fish
@@ -92,6 +95,27 @@ module.exports = {
 					item: 'superbait',
 					uses: 10
 				}
+			],
+			ore:[{name: 'Expanded Ore Pouch 1 (20 slots)',
+				cost: 1000,
+				item: 'ore pouch1',
+				uses: 10,
+				max: 20
+			},
+			{name: 'Expanded Ore Pouch 2 (50 slots)',
+				cost: 5000,
+				item: 'ore pouch2',
+				uses: 30,
+				max: 50,
+				min: 20
+			},
+			{name: 'Upgradeable Ore Pouch (+10 slots, repeatable)',
+				cost: 5000,
+				item: 'ore pouch3',
+				uses: 10,
+				max: 200,
+				min: 50
+			}
 			]
 		}
 		let sellableItems = {
@@ -123,6 +147,27 @@ module.exports = {
 				'japanese spider crab': 1000,
 				'goblin shark': 1000,
 				'anglerfish': 1000
+			},
+			ore:{
+				stone: 1,
+				"coal": 5,
+                "iron ire": 100,
+                "copper ore": 10,
+                "tin ore": 10,
+                "lead ore": 100,
+                "zinc ore": 100,
+                "silver ore": 100,
+                "nickel ore": 100,
+                "gold ore": 100,
+                "platinum ore": 100,
+                "rough amethyst": 100,
+                "cobalt ore": 100,
+                "titanium ore": 100,
+                "rough emerald": 100,
+                "rough ruby": 100,
+                "rough sapphire": 100,
+                "uranium ore": 100,
+                "rough diamond": 100,
 			}
 		}
 		if(buyItem != false && purchaseableItems[category] != null){
@@ -134,11 +179,39 @@ module.exports = {
 				interaction.reply(`${quantity} ${buyItem} costs ${purchaseableItems[category][buyIndex].cost*quantity} EarliestCoins. You only have ${playerSave.inventory.coins.coins}.`)
 				return
 			}else{
-				playerSave.inventory.coins.coins-=purchaseableItems[category][buyIndex].cost*quantity
-				if(playerSave.inventory[category][buyItem]==null){
-					playerSave.inventory[category][buyItem]=purchaseableItems[category][buyIndex].uses*quantity
+				const invItem = buyItem.replace(/\d+$/, '');
+				const maximum = purchaseableItems[category][buyIndex].max ?? null
+				const minimum = purchaseableItems[category][buyIndex].min ?? null
+				if(minimum != null){
+					if(playerSave.inventory[category][invItem]!=null){
+						if(playerSave.inventory[category][invItem] < minimum){
+							interaction.reply(`You cannot purchase ${purchaseableItems[category][buyIndex].name} yet.`)
+							return
+						}
+					}
+				}
+				if(maximum != null){
+					if(playerSave.inventory[category][invItem]==null){
+						if(purchaseableItems[category][buyIndex].uses*quantity>maximum){
+							interaction.reply(`You cannot buy ${quantity} of ${purchaseableItems[category][buyIndex].name}.`)
+							return
+						}
+						playerSave.inventory[category][invItem]=purchaseableItems[category][buyIndex].uses*quantity
+						playerSave.inventory.coins.coins-=purchaseableItems[category][buyIndex].cost*quantity
+					}else{
+						if(purchaseableItems[category][buyIndex].uses*quantity+playerSave.inventory[category][invItem] > maximum){
+							interaction.reply(`You cannot buy ${quantity} of ${purchaseableItems[category][buyIndex].name}.`)
+							return
+						}
+						playerSave.inventory.coins.coins-=purchaseableItems[category][buyIndex].cost*quantity
+						playerSave.inventory[category][invItem]+=purchaseableItems[category][buyIndex].uses*quantity
+					}
 				}else{
-					playerSave.inventory[category][buyItem]+=purchaseableItems[category][buyIndex].uses*quantity
+					if(playerSave.inventory[category][invItem]==null){
+						playerSave.inventory[category][invItem]=purchaseableItems[category][buyIndex].uses*quantity
+					}else{
+						playerSave.inventory[category][invItem]+=purchaseableItems[category][buyIndex].uses*quantity
+					}
 				}
 				interaction.reply(`Purchased ${quantity} ${buyItem} for ${purchaseableItems[category][buyIndex].cost*quantity} EarliestCoins. You now have ${playerSave.inventory.coins.coins} EarliestCoins.`)
 			}

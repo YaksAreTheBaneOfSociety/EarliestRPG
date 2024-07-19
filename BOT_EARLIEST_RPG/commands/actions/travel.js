@@ -51,6 +51,11 @@ module.exports = {
 		}
 		if(playerSave.locationsActions.action == ''){
 			if(locations.includes(locationToGo)){
+				if(locationToGo == "abandoned general mine"){
+					playerSave.locationsActions.mine = {level:0,enemies:{},oreRemaining:0}
+				}else{
+					delete playerSave.locationsActions.mine
+				}
 				playerSave.locationsActions.location = locationToGo
 				interaction.reply(`${interactionUser} traveled to the ${playerSave.locationsActions.location}`)
 				save(interaction)
