@@ -3,5 +3,8 @@ BOT_EARLIEST_RPG/start.bat
 BOT_EARLIEST_RPG/config.json
 BOT_EARLIEST_RPG/New Text Document.txt
 BOT_EARLIEST_RPG/node_modules/
+BOT_EARLIEST_RPG/saves/*
+!BOT_EARLIEST_RPG/saves/save-template.json
 BOT_GENERAL_MINE/config.json
 BOT_GENERAL_MINE/node_modules/
+BOT_EARLIEST_RPG/save-backup.json

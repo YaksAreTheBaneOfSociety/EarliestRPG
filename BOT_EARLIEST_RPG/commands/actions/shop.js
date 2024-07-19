@@ -24,10 +24,35 @@ module.exports = {
 			option.setName('quantity')
 			.setDescription('Quantity of item to buy/sell')),
 	async execute(interaction, client) {
-		let saveData = fs.readFileSync("save.json") // reads the json file
-		let inventory = JSON.parse(saveData)[0] // turns json into js
-		let skills = JSON.parse(saveData)[1] // turns json into js
-		let locationsActions = JSON.parse(saveData)[2]
+		let targetUser = interaction.user		
+		let playerSave = {}
+		try{
+			let saveData = fs.readFileSync("saves/save-"+targetUser.id+".json") // reads the json file
+			playerSave = JSON.parse(saveData) // turns json into js
+		}catch{
+			let userObject = {
+				inventory: {
+					bait: {worms: 0, leeches: 0, grubs: 0, minnows: 0, bread: 0, superbait: 0},
+					fish: {},
+					coins: {coins: 0}
+				},
+				skills: {
+					fishing: {
+						level: 1,
+						xp: 0
+					},
+					foraging: {
+						level: 1,
+						xp: 0
+					}
+				},
+				locationsActions: {
+					location: '',
+					action: ''
+				}
+			}
+			playerSave = userObject
+		}
 		const category = interaction.options.getString('category');
 		const buyItem = interaction.options.getString('buyitem') ?? false;
 		const sellItem = interaction.options.getString('sellitem') ?? false;
@@ -37,48 +62,24 @@ module.exports = {
 			interaction.reply(`You cannot buy and sell an item at the same time`)
 		}
 		function save(interaction){
-			let jsonSave = JSON.stringify([inventory,skills,locationsActions]) // turns js back into json
+			let jsonSave = JSON.stringify(playerSave) // turns js back into json
 			//interaction.channel.send(`test: ${jsonSave}`)
-			fs.writeFileSync("save.json", jsonSave) // the json file is now the users variable
+			fs.writeFileSync("saves/save-"+targetUser.id+".json", jsonSave) // the json file is now the users variable
 			//interaction.channel.send(`**SAVED SUCCESSFULLY**`)
 		}
 
 		let interactionUser = interaction.user
-		let time = interaction.options.getInteger('time')
 		const typeString = interaction.options.getString('category');	
-		let forageType = typeString
-		let locIndex = locationsActions.findIndex(element => element.id === interactionUser.id)
-		if (locIndex == -1){
-			let userObject = {
-				id: interactionUser.id,
-				location: '',
-				action: 'fishing'
-			}
-			locationsActions.push(userObject)
-		}else{
-			if(locationsActions[locIndex].action != ''){
-				interaction.reply("You cannot shop while doing an action")
-				return
-			}
-		}
-		locIndex = locationsActions.findIndex(element => element.id === interactionUser.id)
-		if(locationsActions[locIndex].location != 'town'){
-			interaction.reply(`You cannot shop at the ${locationsActions[locIndex].location}. Try going to the town.`)
+		if(playerSave.locationsActions.action != ''){
+			interaction.reply("You cannot shop while doing an action")
 			return
 		}
-		let invIndex = inventory.findIndex(element => element.id === interactionUser.id)
-		if (invIndex == -1){
-			let userObject = {
-				id: interactionUser.id,
-				bait: {worms: 0, leeches: 0, grubs: 0, minnows: 0, bread: 0, superbait: 0},
-				fish: {},
-				coins: {coins: 0}
-			}
-			inventory.push(userObject)
+		if(playerSave.locationsActions.location != 'town'){
+			interaction.reply(`You cannot shop at the ${playerSave.locationsActions.location}. Try going to the town.`)
+			return
 		}
-		invIndex = inventory.findIndex(element => element.id === interactionUser.id)
-		if(inventory[invIndex].coins == null){
-			inventory[invIndex].coins = {coins:0}
+		if(playerSave.inventory.coins == null){
+			playerSave.inventory.coins = {coins:0}
 		}
 		let purchaseableItems = {
 			bait:[{	name: 'Loaf of Bread (20 uses)',
@@ -129,27 +130,27 @@ module.exports = {
 			if(buyIndex == -1){
 				interaction.reply(`${buyItem} is not a valid item`)
 				return
-			}else if(inventory[invIndex].coins.coins < purchaseableItems[category][buyIndex].cost*quantity){
-				interaction.reply(`${quantity} ${buyItem} costs ${purchaseableItems[category][buyIndex].cost*quantity} EarliestCoins. You only have ${inventory[invIndex].coins.coins}.`)
+			}else if(playerSave.inventory.coins.coins < purchaseableItems[category][buyIndex].cost*quantity){
+				interaction.reply(`${quantity} ${buyItem} costs ${purchaseableItems[category][buyIndex].cost*quantity} EarliestCoins. You only have ${playerSave.inventory.coins.coins}.`)
 				return
 			}else{
-				inventory[invIndex].coins.coins-=purchaseableItems[category][buyIndex].cost*quantity
-				if(inventory[invIndex][category][buyItem]==null){
-					inventory[invIndex][category][buyItem]=purchaseableItems[category][buyIndex].uses*quantity
+				playerSave.inventory.coins.coins-=purchaseableItems[category][buyIndex].cost*quantity
+				if(playerSave.inventory[category][buyItem]==null){
+					playerSave.inventory[category][buyItem]=purchaseableItems[category][buyIndex].uses*quantity
 				}else{
-					inventory[invIndex][category][buyItem]+=purchaseableItems[category][buyIndex].uses*quantity
+					playerSave.inventory[category][buyItem]+=purchaseableItems[category][buyIndex].uses*quantity
 				}
-				interaction.reply(`Purchased ${quantity} ${buyItem} for ${purchaseableItems[category][buyIndex].cost*quantity} EarliestCoins. You now have ${inventory[invIndex].coins.coins} EarliestCoins.`)
+				interaction.reply(`Purchased ${quantity} ${buyItem} for ${purchaseableItems[category][buyIndex].cost*quantity} EarliestCoins. You now have ${playerSave.inventory.coins.coins} EarliestCoins.`)
 			}
 		}else if(sellItem != false && sellableItems[category] != null){
 			if(sellItem != false){
 				if(sellableItems[category][sellItem] == null){
 					interaction.reply(`${sellItem} is not a valid item`)
 				}else{
-					if(inventory[invIndex][category][sellItem] >= quantity){
-						inventory[invIndex].coins.coins+=sellableItems[category][sellItem]*quantity
-						inventory[invIndex][category][sellItem]-=quantity
-						interaction.reply(`Sold ${quantity} ${sellItem} for ${sellableItems[category][sellItem]*quantity} EarliestCoins. You now have ${inventory[invIndex].coins.coins} EarliestCoins.`)
+					if(playerSave.inventory[category][sellItem] >= quantity){
+						playerSave.inventory.coins.coins+=sellableItems[category][sellItem]*quantity
+						playerSave.inventory[category][sellItem]-=quantity
+						interaction.reply(`Sold ${quantity} ${sellItem} for ${sellableItems[category][sellItem]*quantity} EarliestCoins. You now have ${playerSave.inventory.coins.coins} EarliestCoins.`)
 					}else{
 						interaction.reply(`You do not have ${quantity} ${sellItem}`)
 					}
@@ -163,7 +164,7 @@ module.exports = {
 				for (const [key, value] of Object.entries(purchaseableItems[category])) {
 					interactionReply+=`\n*${value.item}* - ${value.name} can be purchased for ${value.cost} EarliestCoins`
 				}
-				interactionReply+=`\nYou have **${inventory[invIndex].coins.coins}** EarliestCoins`
+				interactionReply+=`\nYou have **${playerSave.inventory.coins.coins}** EarliestCoins`
 				interaction.reply(interactionReply)
 			}
 		}

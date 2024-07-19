@@ -6,29 +6,38 @@ module.exports = {
 		.setName('skills')
 		.setDescription('shows user skills'),
 	async execute(interaction, client) {
-		let saveData = fs.readFileSync("save.json") // reads the json file
-		let inventory = JSON.parse(saveData)[0] // turns json into js
-		let skills = JSON.parse(saveData)[1] // turns json into js
-		let locationsActions = JSON.parse(saveData)[2]
-		let interactionUser = interaction.user
-		let skillsIndex = skills.findIndex(element => element.id === interactionUser.id)
-		if (skillsIndex == -1){
+		let targetUser = interaction.user
+		let playerSave = {}
+		try{
+			let saveData = fs.readFileSync("saves/save-"+targetUser.id+".json") // reads the json file
+			playerSave = JSON.parse(saveData) // turns json into js
+		}catch{
 			let userObject = {
-				id: interactionUser.id,
-				fishing: {
-					level: 1,
-					xp: 0
+				inventory: {
+					bait: {worms: 0, leeches: 0, grubs: 0, minnows: 0, bread: 0, superbait: 0},
+					fish: {},
+					coins: {coins: 0}
 				},
-				foraging: {
-					level: 1,
-					xp: 0
+				skills: {
+					fishing: {
+						level: 1,
+						xp: 0
+					},
+					foraging: {
+						level: 1,
+						xp: 0
+					}
+				},
+				locationsActions: {
+					location: '',
+					action: ''
 				}
 			}
-			skills.push(userObject)
+			playerSave = userObject
 		}
-		skillsIndex = skills.findIndex(element => element.id === interactionUser.id)
+		let interactionUser = interaction.user
 		let interactionReply = `**${interactionUser}'s CURRENT SKILLS**`
-		for (const [key, value] of Object.entries(skills[skillsIndex])) {
+		for (const [key, value] of Object.entries(playerSave.skills)) {
 			if(key != 'id'){
 				interactionReply+=`\n${key} skill is **${value.level}**. current ${key} xp is **${value.xp}**`
 			}

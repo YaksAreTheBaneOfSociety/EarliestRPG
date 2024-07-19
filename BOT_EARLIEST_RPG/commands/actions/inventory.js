@@ -17,32 +17,47 @@ module.exports = {
 				),
 	async execute(interaction, client) {
 		const invType = interaction.options.getString('category')
-		let saveData = fs.readFileSync("save.json") // reads the json file
-		let inventory = JSON.parse(saveData)[0] // turns json into js
-		let skills = JSON.parse(saveData)[1] // turns json into js
-		let locationsActions = JSON.parse(saveData)[2]
-		let interactionUser = interaction.user
-		let invIndex = inventory.findIndex(element => element.id === interactionUser.id)
-		if (invIndex == -1){
+		let targetUser = interaction.user
+		let playerSave = {}
+		try{
+			let saveData = fs.readFileSync("saves/save-"+targetUser.id+".json") // reads the json file
+			playerSave = JSON.parse(saveData) // turns json into js
+		}catch{
 			let userObject = {
-				id: interactionUser.id,
-				bait: {worms: 0, leeches: 0, grubs: 0, minnows: 0, bread: 0, superbait: 0},
-				fish: {},
-				coins: {coins:0}
+				inventory: {
+					bait: {worms: 0, leeches: 0, grubs: 0, minnows: 0, bread: 0, superbait: 0},
+					fish: {},
+					coins: {coins: 0}
+				},
+				skills: {
+					fishing: {
+						level: 1,
+						xp: 0
+					},
+					foraging: {
+						level: 1,
+						xp: 0
+					}
+				},
+				locationsActions: {
+					location: '',
+					action: ''
+				}
 			}
-			inventory.push(userObject)
+			playerSave = userObject
 		}
-		invIndex = inventory.findIndex(element => element.id === interactionUser.id)
-		if(inventory[invIndex].coins == null){
-			inventory[invIndex].coins = {coins:0}
+		let interactionUser = interaction.user
+		
+		if(playerSave.inventory.coins == null){
+			playerSave.inventory.coins = {coins:0}
 		}
 		let interactionReply = `**${interactionUser}'s current ${invType}**`
-		if(!(invType in inventory[invIndex])){
+		if(!(invType in playerSave.inventory)){
 			interactionReply=`${interactionUser} has no items of type: ${invType}`
 			return;
 		}
 		let isEmpty=false
-		for (const [key, value] of Object.entries(inventory[invIndex][invType])) {
+		for (const [key, value] of Object.entries(playerSave.inventory[invType])) {
 			if(value != 0){
 				interactionReply+=`\n${interactionUser} has ${value} ${key}`
 				isEmpty=true

@@ -1,0 +1,22 @@
+{
+	"inventory": {
+		"bait": {"worms": 0, "leeches": 0, "grubs": 0, "minnows": 0, "bread": 0, "superbait": 0},
+		"fish": {},
+		"coins": {"coins": 0}
+	},
+	"skills": {
+		"fishing": {
+			"level": 1,
+			"xp": 0
+		},
+		"foraging": {
+			"level": 1,
+			"xp": 0
+		}
+	},
+	"locationsActions": {
+		"location": "",
+		"action": ""
+	}
+}
+THIS FILE IS NOT USED BUT SERVES AS AN EXAMPLE OF WHAT SAVE FILES WILL LOOK LIKE
