@@ -77,37 +77,6 @@ client.on(Events.InteractionCreate, async interaction => {
 		}
 	}
 });
-
-let saveData = fs.readFileSync("save.json") // reads the json file
-let inventory = JSON.parse(saveData)[0] // turns json into js
-let skills = JSON.parse(saveData)[1] // turns json into js
-let locationsActions = JSON.parse(saveData)[2] // turns json into js
-
-var randomProperty = function (obj) {
-    var keys = Object.keys(obj);
-    return keys[ keys.length * Math.random() << 0];
-}
-
-function save(m,inventory,skills,locationsActions){
-	let jsonSave = JSON.stringify(inventory,skills,locationsActions) // turns js back into json
-	fs.writeFileSync("save.json", jsonSave) // the json file is now the users variable
-	m.channel.send(`**SAVED SUCCESSFULLY**`)
-}
-
-var levelUpCheck = function (skills,skillsIndex,skill,level,xp,m){
-	if(level<500){
-		xpNeeded=100+100*skills[skillsIndex][skill].level
-		if(skills[skillsIndex][skill].xp>=xpNeeded){
-			skills[skillsIndex][skill].xp-=xpNeeded
-			skills[skillsIndex][skill].level++
-			m.channel.send(`${m.author} leveled up ${skill} to **${skills[skillsIndex][skill].level}**`)
-		}
-	}
-	return(skills[skillsIndex])
-}
-
-
-
 // When the client is ready, run this code (only once).
 // The distinction between `client: Client<boolean>` and `readyClient: Client<true>` is important for TypeScript developers.
 // It makes some properties non-nullable.
