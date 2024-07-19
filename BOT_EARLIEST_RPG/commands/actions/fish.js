@@ -120,7 +120,7 @@ module.exports = {
 			return
 		}
 		if(playerSave.locationsActions.location != 'lake'){
-			interaction.reply(`You cannot fish at the ${playerSave.locationsActions.location}. Try going to the lake.`)
+			interaction.reply(`You cannot fish at the ${playerSave.locationsActions.location}. Try going to the *lake*.`)
 			return
 		}
 		interaction.reply(`${interactionUser} has started fishing`)
