@@ -50,6 +50,9 @@ module.exports = {
 			var keys = Object.keys(obj);
 			return keys[ keys.length * Math.random() << 0];
 		}
+		var randomElement = function (array) {
+			return array[array.length * Math.random() << 0]
+		}
 		function save(interaction){
 			let jsonSave = JSON.stringify(playerSave) // turns js back into json
 			//interaction.channel.send(`test: ${jsonSave}`)
@@ -91,27 +94,25 @@ module.exports = {
 			playerSave = JSON.parse(saveData) // turns json into js
 			let xpEarned = 0
 			if(forageType=='bait'){
-				let forageableBait = {"worms":'forest',"leeches":'lake',"grubs":'forest',"minnows":'none',"bread":'town',"superbait":'none'}
-				let itemToForage = randomProperty(playerSave.inventory.bait)
-				if(forageableBait[itemToForage] == playerSave.locationsActions.location){
-					let amountForaged = 0
-					for (let j = 0; j < playerSave.skills.foraging.level; j++){
-						if(Math.random() < 0.8+-20/(playerSave.skills.foraging.level+35)){
-							amountForaged++
-						}else{
-							j=501
-						}
-					}
-					if (amountForaged > 0){
-						playerSave.inventory.bait[itemToForage]+=amountForaged
-						xpEarned = 2*amountForaged
-						interaction.channel.send(`${interactionUser.username} has foraged and found ${amountForaged} ${itemToForage}.`)
+				let forageableBait = [{name: "worms", loc: 'forest'},{name: "leeches", loc:'lake'},{name: "grubs", loc:'forest'},{name: "bread", loc:'town'}]
+				forageableBait = forageableBait.filter(item => item.loc == playerSave.locationsActions.location)
+				let itemToForage = randomElement(forageableBait).name
+				let amountForaged = 0
+				for (let j = 0; j < playerSave.skills.foraging.level; j++){
+					if(Math.random() < 0.8+-20/(playerSave.skills.foraging.level+35)){
+						amountForaged++
 					}else{
-						xpEarned = 0.25
+						j=501
 					}
+				}
+				if (amountForaged > 0){
+					playerSave.inventory.bait[itemToForage]+=amountForaged
+					xpEarned = 2*amountForaged
+					interaction.channel.send(`${interactionUser.username} has foraged and found ${amountForaged} ${itemToForage}.`)
 				}else{
 					xpEarned = 0.25
 				}
+
 			}else{
 				interaction.channel.send(`"${forageType}" is not a valid foraging category. Available categories: bait`)
 				return
