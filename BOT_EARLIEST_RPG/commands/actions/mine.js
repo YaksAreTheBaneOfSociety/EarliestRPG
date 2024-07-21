@@ -373,7 +373,7 @@ module.exports = {
                     let itemMined = ""
 
                     for (const [key, value] of Object.entries(ores)) {
-                        if(Math.random() < value.rarity && playerSave.locationsActions.mine.level >= value.levels[0] && playerSave.locationsActions.mine.level <= value.levels[1]){
+                        if(Math.random() < value.rarity*(1+playerSave.skills.mining.level/500) && playerSave.locationsActions.mine.level >= value.levels[0] && playerSave.locationsActions.mine.level <= value.levels[1]){
                             itemMined = key
                         }
                     }
@@ -437,7 +437,7 @@ module.exports = {
             playerSave.locationsActions.mine.level++
             playerSave.locationsActions.mine.oreRemaining = Math.ceil(((playerSave.locationsActions.mine.level)/20)+(25*Math.random()))
             if(playerSave.locationsActions.mine.health == "start"){
-                playerSave.locationsActions.mine.health = 10+playerSave.skills.combat.level
+                playerSave.locationsActions.mine.health = 10+2*playerSave.skills.combat.level
             }
             let levelType="normal"
             if(playerSave.locationsActions.mine.level%50==0){
@@ -463,7 +463,7 @@ module.exports = {
             }
             replyMessage = `Remaining enemies on this level:`
             let chosenWeapon = interaction.options.getString('Weapon') ?? null
-            let chosenEnemy = playerSave.locationsActions.mine.enemies.findIndex(element => element.item === interaction.options.getString('Enemy')) ?? 0
+            let chosenEnemy = playerSave.locationsActions.mine.enemies.findIndex(element => element.name == interaction.options.getString('enemy')) ?? 0
             if(chosenEnemy == -1){
                 chosenEnemy = 0
             }
@@ -471,14 +471,16 @@ module.exports = {
                 chosenWeapon = getMaxValueKey(playerSave.inventory.combat)
             }
             const damageDealt = rollDice(playerSave.inventory.combat[chosenWeapon].damage)
-            let damageTaken = 0
             let damageMessage = ``
             for (const [key, item] of Object.entries(playerSave.locationsActions.mine.enemies)) {
                 replyMessage=replyMessage.concat(`\n${item.name}: Health: ${item.health}`)
                 let enemyDamage = rollDice(item.weapon.damage)
-                damageTaken+=enemyDamage
-                playerSave.locationsActions.mine.health-=damageTaken
-                damageMessage=damageMessage.concat(`\n${interaction.user.username} took ${enemyDamage} damage from ${item.name}'s attack. Remaining health: ${playerSave.locationsActions.mine.health}.`)
+                if(Math.random()<(-10/(20*playerSave.skills.combat.level+100))+0.1){
+                    damageMessage=damageMessage.concat(`\n${interaction.user.username} dodged ${item.name}'s attack. Remaining health: ${playerSave.locationsActions.mine.health}.`)
+                }else{
+                    playerSave.locationsActions.mine.health-=enemyDamage
+                    damageMessage=damageMessage.concat(`\n${interaction.user.username} took ${enemyDamage} damage from ${item.name}'s attack. Remaining health: ${playerSave.locationsActions.mine.health}.`)
+                }
             }
             interaction.reply(replyMessage)
             interaction.channel.send(damageMessage)
@@ -489,6 +491,11 @@ module.exports = {
                 return
             }
             let defeatedString = ``
+            let criticalHitString = ``
+            if(Math.random()<(Math.log(playerSave.skills.combat.level)+1.1)/100){
+                criticalHitString = `**Critical Hit** - `
+                damageDealt*=2
+            }
             playerSave.locationsActions.mine.enemies[chosenEnemy].health-=damageDealt
             if(playerSave.locationsActions.mine.enemies[chosenEnemy].health<=0){
                 defeatedString = ` and defeated it, earning ${playerSave.locationsActions.mine.enemies[chosenEnemy].xp} Combat xp and ${playerSave.locationsActions.mine.enemies[chosenEnemy].coins} EarliestCoins`
@@ -498,7 +505,7 @@ module.exports = {
                 }
                 playerSave.skills.combat.xp+=playerSave.locationsActions.mine.enemies[chosenEnemy].xp
                 levelUpCheck("combat",interaction,interaction.user)
-                interaction.channel.send(`<@${interaction.user.id}> dealt ${damageDealt} damage to ${playerSave.locationsActions.mine.enemies[chosenEnemy].name}${defeatedString}`)
+                interaction.channel.send(`${criticalHitString}<@${interaction.user.id}> dealt ${damageDealt} damage to ${playerSave.locationsActions.mine.enemies[chosenEnemy].name}${defeatedString}`)
                 playerSave.locationsActions.mine.enemies.splice(chosenEnemy, 1)
             }else{
                 interaction.channel.send(`<@${interaction.user.id}> dealt ${damageDealt} damage to ${playerSave.locationsActions.mine.enemies[chosenEnemy].name}. Remaining health: ${playerSave.locationsActions.mine.enemies[chosenEnemy].health}`)
@@ -521,8 +528,8 @@ module.exports = {
             if(playerSave.inventory.consumables[healingItem]>0){
                 playerSave.inventory.consumables[healingItem]--
                 playerSave.locationsActions.mine.health+=healingMultiplier*(baseHealingValues[healingItem])
-                if(playerSave.locationsActions.mine.health > 10+playerSave.skills.combat.level){
-                    playerSave.locationsActions.mine.health = 10+playerSave.skills.combat.level
+                if(playerSave.locationsActions.mine.health > 10+2*playerSave.skills.combat.level){
+                    playerSave.locationsActions.mine.health = 10+2*playerSave.skills.combat.level
                 }
                 interaction.reply(`${interaction.user.username} used a ${healingItem} and now has ${playerSave.locationsActions.mine.health} health.`)
             }else{
