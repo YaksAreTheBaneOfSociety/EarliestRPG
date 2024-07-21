@@ -13,7 +13,10 @@ module.exports = {
 					{ name: 'bait', value: 'bait' },
 					{ name: 'coins', value: 'coins' },
 					{ name: 'fish', value: 'fish' },
-					{ name: 'ore', value: 'ore' }
+					{ name: 'combat', value: 'combat' },
+					{ name: 'consumables', value: 'consumables' },
+					{ name: 'ore', value: 'ore' },
+					{ name: 'crafting', value: 'crafting' }
 				)
 				),
 	async execute(interaction, client) {
@@ -53,19 +56,23 @@ module.exports = {
 		if(playerSave.inventory.coins == null){
 			playerSave.inventory.coins = {coins:0}
 		}
-		let interactionReply = `**${interactionUser}'s current ${invType}**`
+		let interactionReply = `**${interactionUser}'s current ${invType} inventory**`
 		if(!(invType in playerSave.inventory)){
 			interactionReply=`${interactionUser} has no items of type: ${invType}`
 			return;
 		}
-		let isEmpty=false
+		let isEmpty=true
 		for (const [key, value] of Object.entries(playerSave.inventory[invType])) {
-			if(!(ignoredItems.includes(key))){
-				interactionReply+=`\n${interactionUser} has ${value} ${key}`
-				isEmpty=true
+			if(!(ignoredItems.includes(key))&&value!=0){
+				if(invType!="combat"){
+					interactionReply+=`\n${interactionUser} has ${value} ${key}`
+				}else{
+					interactionReply+=`\n${interactionUser} has 1 ${key} - Damage: ${value.damage}`
+				}
+				isEmpty=false
 			}
 		}
-		if(isEmpty==false){
+		if(isEmpty){
 			interactionReply=`${interactionUser} has no items of type: ${invType}`
 		}
 		interaction.reply(interactionReply)

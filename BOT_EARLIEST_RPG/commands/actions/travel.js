@@ -52,7 +52,7 @@ module.exports = {
 		if(playerSave.locationsActions.action == ''){
 			if(locations.includes(locationToGo)){
 				if(locationToGo == "abandoned general mine"){
-					playerSave.locationsActions.mine = {level:0,enemies:{},oreRemaining:0}
+					playerSave.locationsActions.mine = {level:0,enemies:[],oreRemaining:0,health:"start"}
 				}else{
 					delete playerSave.locationsActions.mine
 				}

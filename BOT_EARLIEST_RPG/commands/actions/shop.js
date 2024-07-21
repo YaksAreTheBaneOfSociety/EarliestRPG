@@ -116,6 +116,33 @@ module.exports = {
 				max: 200,
 				min: 50
 			}
+			],
+			consumables:[
+				{	name: '',
+					cost: 100,
+					item: 'tiny health potion',
+					uses: 1
+				},
+				{	name: '',
+					cost: 400,
+					item: 'small health potion',
+					uses: 1
+				},
+				{	name: '',
+					cost: 750,
+					item: 'medium health potion',
+					uses: 1
+				},
+				{	name: '',
+					cost: 1800,
+					item: 'large health potion',
+					uses: 1
+				},
+				{	name: '',
+					cost: 3500,
+					item: 'giant health potion',
+					uses: 1
+				}
 			]
 		}
 		let sellableItems = {
@@ -168,7 +195,17 @@ module.exports = {
                 "rough sapphire": 100,
                 "uranium ore": 100,
                 "rough diamond": 100,
-			}
+			},
+			combat:{
+
+			},
+			consumables:{
+                "tiny health potion": 50,
+                "small health potion": 200,
+                "medium health potion": 375,
+                "large health potion": 900,
+                "giant health potion": 1750
+            }
 		}
 		if(buyItem != false && purchaseableItems[category] != null){
 			let buyIndex = purchaseableItems[category].findIndex(element => element.item === buyItem)
@@ -217,13 +254,25 @@ module.exports = {
 			}
 		}else if(sellItem != false && sellableItems[category] != null){
 			if(sellItem != false){
-				if(sellableItems[category][sellItem] == null){
+				if(sellableItems[category][sellItem] == null && category != "combat"){
 					interaction.reply(`${sellItem} is not a valid item`)
-				}else{
+				}else if(category != "combat"){
 					if(playerSave.inventory[category][sellItem] >= quantity){
 						playerSave.inventory.coins.coins+=sellableItems[category][sellItem]*quantity
 						playerSave.inventory[category][sellItem]-=quantity
 						interaction.reply(`Sold ${quantity} ${sellItem} for ${sellableItems[category][sellItem]*quantity} EarliestCoins. You now have ${playerSave.inventory.coins.coins} EarliestCoins.`)
+					}else{
+						interaction.reply(`You do not have ${quantity} ${sellItem}`)
+					}
+				}else{
+					if(1 == quantity){	
+						if(playerSave.inventory[category][sellItem].hasOwnProperty('price')){
+							playerSave.inventory.coins.coins+=playerSave.inventory[category][sellItem].price
+							interaction.reply(`Sold ${quantity} ${sellItem} for ${playerSave.inventory[category][sellItem].price} EarliestCoins. You now have ${playerSave.inventory.coins.coins} EarliestCoins.`)
+							delete playerSave.inventory[category][sellItem]
+						}else{
+							interaction.reply(`${sellItem} cannot be sold`)
+						}
 					}else{
 						interaction.reply(`You do not have ${quantity} ${sellItem}`)
 					}
