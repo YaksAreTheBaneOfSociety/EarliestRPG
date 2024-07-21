@@ -143,6 +143,34 @@ module.exports = {
 					item: 'giant health potion',
 					uses: 1
 				}
+			],
+			combat:[
+				{	name: '',
+					cost: 150,
+					item: 'sharpened stick',
+					value: {"damage":2}
+				},
+				{	name: '',
+					cost: 500,
+					item: 'rough iron club',
+					value: {"damage":"1d4"}
+				},
+				{	name: '',
+					cost: 1500,
+					item: 'dull spear',
+					value: {"damage":"2d3"}
+				},
+				{	name: '',
+					cost: 5000,
+					item: 'steel longsword',
+					value: {"damage":"3d4"}
+				},
+				{	name: '',
+					cost: 25000,
+					item: 'steel greatsword',
+					value: {"damage":"2d8+1"}
+				}
+
 			]
 		}
 		let sellableItems = {
@@ -244,10 +272,21 @@ module.exports = {
 						playerSave.inventory[category][invItem]+=purchaseableItems[category][buyIndex].uses*quantity
 					}
 				}else{
-					if(playerSave.inventory[category][invItem]==null){
-						playerSave.inventory[category][invItem]=purchaseableItems[category][buyIndex].uses*quantity
+					if(purchaseableItems[category][buyIndex].hasOwnProperty('value')){
+						if(playerSave.inventory[category][invItem]==null){
+							playerSave.inventory[category][invItem]=purchaseableItems[category][buyIndex].value
+							playerSave.inventory.coins.coins-=purchaseableItems[category][buyIndex].cost
+						}else{
+							interaction.reply(`You already have a ${buyItem}`)
+						}
 					}else{
-						playerSave.inventory[category][invItem]+=purchaseableItems[category][buyIndex].uses*quantity
+						if(playerSave.inventory[category][invItem]==null){
+							playerSave.inventory[category][invItem]=purchaseableItems[category][buyIndex].uses*quantity
+							playerSave.inventory.coins.coins-=purchaseableItems[category][buyIndex].cost*quantity
+						}else{
+							playerSave.inventory[category][invItem]+=purchaseableItems[category][buyIndex].uses*quantity
+							playerSave.inventory.coins.coins-=purchaseableItems[category][buyIndex].cost*quantity
+						}
 					}
 				}
 				interaction.reply(`Purchased ${quantity} ${buyItem} for ${purchaseableItems[category][buyIndex].cost*quantity} EarliestCoins. You now have ${playerSave.inventory.coins.coins} EarliestCoins.`)
