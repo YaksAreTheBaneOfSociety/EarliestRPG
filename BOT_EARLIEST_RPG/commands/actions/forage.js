@@ -136,7 +136,7 @@ module.exports = {
 			}else{
 				playerSave.locationsActions.action = ''
 				save(interaction)
-				interaction.channel.send(`${interactionUser.username} has stopped foraging. Total XP earned: **${totalXP}**.`)
+				interaction.channel.send(`<@${interactionUser.id}> has stopped foraging. Total XP earned: **${totalXP}**.`)
 			}                       //  ..  setTimeout()
 		}, 1000)
 		}

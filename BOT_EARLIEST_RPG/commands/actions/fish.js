@@ -198,7 +198,7 @@ module.exports = {
 				}else{
 					playerSave.locationsActions.action = ''
 					save(interaction)
-					interaction.channel.send(`${interactionUser.username} has stopped fishing. Total XP earned: ${totalXP}.`)
+					interaction.channel.send(`<@${interactionUser.id}> has stopped fishing. Total XP earned: ${totalXP}.`)
 				}                       //  ..  setTimeout()
 			}, 3000)
 		}
