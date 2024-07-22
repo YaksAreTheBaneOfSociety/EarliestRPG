@@ -99,7 +99,7 @@ module.exports = {
 				let itemToForage = randomElement(forageableBait).name
 				let amountForaged = 0
 				for (let j = 0; j < playerSave.skills.foraging.level; j++){
-					if(Math.random() < 0.8+-20/(playerSave.skills.foraging.level+35)){
+					if(Math.random() < 0.45+-20/(playerSave.skills.foraging.level+35)){
 						amountForaged++
 					}else{
 						j=501

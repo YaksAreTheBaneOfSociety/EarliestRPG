@@ -9,6 +9,13 @@ module.exports = {
 			option.setName('category')
 				.setDescription('item category to buy/sell from')
 				.setRequired(true)
+				.addChoices(
+					{ name: 'bait', value: 'bait' },
+					{ name: 'fish', value: 'fish' },
+					{ name: 'combat', value: 'combat' },
+					{ name: 'consumables', value: 'consumables' },
+					{ name: 'ore', value: 'ore' }
+				)
 				)
 		.addStringOption(option =>
 			option.setName('buyitem')
